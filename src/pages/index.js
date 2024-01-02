@@ -5,11 +5,12 @@ import { filterExtrinsicEvents } from "../../rootnetwork/utils/filterExtrinsicEv
 import { formatEventData } from "../../rootnetwork/utils/formatEventData"
 import { sendExtrinsic } from "../../rootnetwork/utils/sendExtrinsic"
 import { withChainApi } from "../../rootnetwork/utils/withChainApi"
+import { getFuturepassHolders } from "../../rootnetwork/utils/getFuturepassHolderAddress"
 
 export default function Home() {
     const [errorMessage, setErrorMessage] = useState("")
 
-    const handleClick = async () => {
+    const handleSendExtrinsicButtonClick = async () => {
         await withChainApi("porcini", async (api, caller) => {
             const fpAccount = (
                 await api.query.futurepass.holders(caller.address)
@@ -55,15 +56,28 @@ export default function Home() {
             console.log(formatEventData(remarkEvent.event))
         })
     }
+
+    const handleGetFuturepassAddressButtonClick = async () => {
+        await getFuturepassHolders("porcini")
+    }
+
     return (
         <main className={`min-h-screen p-24 ${inter.className}`}>
             <div className="text-[#FFFFFF] text-[24px]">helloooo mate</div>
             <div>
                 <button
-                    onClick={handleClick}
+                    onClick={handleSendExtrinsicButtonClick}
                     className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
                 >
                     send extrinsic
+                </button>
+            </div>
+            <div>
+                <button
+                    onClick={handleGetFuturepassAddressButtonClick}
+                    className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
+                >
+                    get futurepass holders
                 </button>
             </div>
             {errorMessage && (
