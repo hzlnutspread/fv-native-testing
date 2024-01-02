@@ -1,40 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Introduction
 
-## Getting Started
+I am trying to figure this stuff out! Just a collection of notes and things I've figured out so far
 
-First, run the development server:
+-   to follow along just create an `.env` file with a `CALLER_PRIVATE_KEY=` field
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# TRN notes
+
+`https://github.com/futureversecom/trn-examples/blob/main/examples/substrate/use-futurepass/src/proxyExtrinsic.ts`
+
+## the code block
+
+```javascript
+withChainApi("porcini", async (api, caller, logger) => {
+	const fpAccount = (await api.query.futurepass.holders(caller.address)).unwrapOr(undefined);
+
+	const call = api.tx.system.remarkWithEvent("Hello World");
+
+    const extrinsic = api.tx.futurepass.proxyExtrinsic(fpAccount, call);
+
+	const { result, extrinsicId } = await sendExtrinsic(extrinsic, caller, { log: logger });
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## breaking down the code
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```javascript
+withChainApi("porcini", async (api, caller, logger)
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+-   Connects to the network API (getChainApi)
+-   creates a keyring for the signer/caller
+-   sets up a logger
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+<br>
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```javascript
+const call = api.tx.system.remarkWithEvent("Hello World")
+```
 
-## Learn More
+-   creates the function to be called by the FP account
 
-To learn more about Next.js, take a look at the following resources:
+<br>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```javascript
+const fpAccount = (await api.query.futurepass.holders(caller.address)).unwrapOr(
+    undefined
+)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+-   gets the futurepass user to call the extrinsic based on the caller address
 
-## Deploy on Vercel
+<br>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```javascript
+api.tx.futurepass.proxyExtrinsic(fpAccount, call)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+-   creates the extrinsic with the FP user, and the function as parameters
+
+<br>
+
+```javascript
+const { result, extrinsicId } = await sendExtrinsic(extrinsic, caller)
+```
+
+-   dispatches the extrinsic from the caller
+
+<br>

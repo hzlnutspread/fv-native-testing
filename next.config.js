@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+module.exports = {
+    reactStrictMode: true,
+    env: {
+        CALLER_PRIVATE_KEY: process.env.CALLER_PRIVATE_KEY,
+    },
 }
-
-module.exports = nextConfig
