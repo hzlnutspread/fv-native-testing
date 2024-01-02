@@ -8,7 +8,7 @@ I am trying to figure this stuff out! Just a collection of notes and things I've
 
 `https://github.com/futureversecom/trn-examples/blob/main/examples/substrate/use-futurepass/src/proxyExtrinsic.ts`
 
-## the code block
+## using withChainApi
 
 ```javascript
 withChainApi("porcini", async (api, caller, logger) => {
@@ -35,6 +35,16 @@ withChainApi("porcini", async (api, caller, logger)
 <br>
 
 ```javascript
+const fpAccount = (await api.query.futurepass.holders(caller.address)).unwrapOr(
+    undefined
+)
+```
+
+-   gets the futurepass user who will call the extrinsic based on the caller address
+
+<br>
+
+```javascript
 const call = api.tx.system.remarkWithEvent("Hello World")
 ```
 
@@ -43,17 +53,7 @@ const call = api.tx.system.remarkWithEvent("Hello World")
 <br>
 
 ```javascript
-const fpAccount = (await api.query.futurepass.holders(caller.address)).unwrapOr(
-    undefined
-)
-```
-
--   gets the futurepass user to call the extrinsic based on the caller address
-
-<br>
-
-```javascript
-api.tx.futurepass.proxyExtrinsic(fpAccount, call)
+const extrinsic = api.tx.futurepass.proxyExtrinsic(fpAccount, call)
 ```
 
 -   creates the extrinsic with the FP user, and the function as parameters
