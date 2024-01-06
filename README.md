@@ -67,3 +67,28 @@ const { result, extrinsicId } = await sendExtrinsic(extrinsic, caller)
 -   dispatches the extrinsic from the caller
 
 <br>
+
+# Other notes
+
+-   switch chains using
+
+```javascript
+window.ethereum.request({ method: "wallet_switchEthereumChain" })
+```
+
+-   create the provider using
+
+```javascript
+useEffect(() => {
+    setProvider(new ethers.providers.Web3Provider(window.ethereum))
+}, [])
+```
+
+-   set the signer using this and pass into the extrinsics
+
+```javascript
+const getSigner = async (provider) => {
+    const signer = await provider.getSigner()
+    return signer
+}
+```

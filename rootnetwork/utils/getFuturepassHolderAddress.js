@@ -1,13 +1,14 @@
 import { createKeyRing } from "./createKeyring"
 import { getChainApi } from "./getChainApi"
 
-export async function getFuturepassHolders(network) {
+export async function getFuturepassHolders(network, signer) {
     const api = await getChainApi(network)
-    const signer = createKeyRing(process.env.CALLER_PRIVATE_KEY)
+    const callerAddress = await signer.getAddress()
 
-    const data = await api.query.futurepass
-        .holders(signer.address)
+    const fpAddress = await api.query.futurepass
+        .holders(callerAddress)
         .then((response) => response.toJSON())
-    console.log(signer.address)
-    console.log(data)
+    console.log(callerAddress)
+    console.log(fpAddress)
+    return fpAddress
 }
