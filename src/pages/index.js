@@ -31,7 +31,6 @@ export default function Home() {
             ...getPublicProvider("porcini", true),
         })
         setApi(api)
-
         window.ethereum.on("chainChanged", handleChainChanged)
     }
 
@@ -65,11 +64,21 @@ export default function Home() {
         }
     }
 
+    const checkIfConnected = async () => {
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            setWalletAddress(window.ethereum.selectedAddress)
+        }
+    }
+
     useEffect(() => {
         setup()
         if (window.ethereum) {
             handleChainChanged()
         }
+    }, [])
+
+    useEffect(() => {
+        checkIfConnected()
     }, [])
 
     useEffect(() => {
