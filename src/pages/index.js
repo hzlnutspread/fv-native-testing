@@ -159,11 +159,11 @@ export default function Home() {
 
             // const extrinsic = api.tx.futurepass.proxyExtrinsic(fpAccount, call)
 
-            // console.log(`dispatch extrinsic from caller="${caller.address}"`)
+            // console.log(`dispatch extrinsic from caller="${callerAddress}"`)
 
             // const { result, extrinsicId } = await sendExtrinsic(
             //     extrinsic,
-            //     caller,
+            //     signer,
             //     {}
             // )
             // const [proxyEvent, remarkEvent] = filterExtrinsicEvents(
