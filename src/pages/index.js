@@ -13,6 +13,9 @@ import { getApiOptions, getPublicProvider } from "@therootnetwork/api"
 
 export default function Home() {
     const [errorMessage, setErrorMessage] = useState("")
+    const [showSwitchNetworkButton, setShowSwitchNetworkButton] =
+        useState(false)
+
     const [api, setApi] = useState()
     const [provider, setProvider] = useState({})
     const [fpAddress, setFpAddress] = useState()
@@ -28,10 +31,45 @@ export default function Home() {
             ...getPublicProvider("porcini", true),
         })
         setApi(api)
+
+        window.ethereum.on("chainChanged", handleChainChanged)
+    }
+
+    const handleChainChanged = async () => {
+        const chainId = await window.ethereum.request({
+            method: "eth_chainId",
+        })
+        console.log(`Network chain id : ${chainId}`)
+
+        setShowSwitchNetworkButton(chainId !== "0x1df8")
+    }
+
+    const handleSwitchNetworkClick = async () => {
+        console.log("switching to porcini...")
+        if (window.ethereum) {
+            console.log("detected metamask")
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [
+                        {
+                            chainId: "0x1df8",
+                        },
+                    ],
+                })
+            } catch (error) {
+                console.log("error switching to porcini...")
+            }
+        } else {
+            console.log("already connected to porcini...")
+        }
     }
 
     useEffect(() => {
         setup()
+        if (window.ethereum) {
+            handleChainChanged()
+        }
     }, [])
 
     useEffect(() => {
@@ -50,7 +88,6 @@ export default function Home() {
         console.log("connecting wallet")
         if (typeof window.ethereum !== "undefined") {
             await requestAccount()
-            // const provider = new ethers.providers.Web3Provider(window.ethereum)
         }
         console.log("successfully connected wallet")
     }
@@ -60,27 +97,6 @@ export default function Home() {
 
         const chainId = await window.ethereum.request({ method: "eth_chainId" })
         console.log(`current chain ID: ${chainId}`)
-
-        if (chainId !== "0x1df8") {
-            console.log("switching to porcini...")
-            if (window.ethereum) {
-                console.log("detected metamask")
-                try {
-                    await window.ethereum.request({
-                        method: "wallet_switchEthereumChain",
-                        params: [
-                            {
-                                chainId: "0x1df8",
-                            },
-                        ],
-                    })
-                } catch (error) {
-                    console.log("error switching to porcini...")
-                }
-            }
-        } else {
-            console.log("already connected to porcini...")
-        }
 
         if (window.ethereum) {
             console.log("detected metamask")
@@ -176,51 +192,68 @@ export default function Home() {
     return (
         <main className={`min-h-screen p-24 ${inter.className}`}>
             <div className="text-[#FFFFFF] text-[24px]">testing extrinsics</div>
-
-            <div>
-                {walletAddress.length === 0 ? (
+            {showSwitchNetworkButton ? (
+                <>
+                    <div className="mt-2">
+                        you are not connected to porcini, please click here to
+                        switch chains
+                    </div>
                     <button
-                        onClick={handleConnectWalletButton}
-                        className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
+                        className=" bg-[#FFFFFF] mt-2 p-2 rounded-lg text-[#151515]"
+                        onClick={handleSwitchNetworkClick}
                     >
-                        connect wallet
+                        porcini
                     </button>
-                ) : (
-                    <button className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]">
-                        connected!
-                    </button>
-                )}
-                <div className="pt-2">
-                    connected address:{" "}
-                    {walletAddress ? walletAddress : "not connected"}
-                </div>
+                </>
+            ) : (
                 <div>
-                    account xrp balance: {balance ? balance : "not connected"}
-                </div>
-            </div>
-            <div>
-                <button
-                    onClick={handleGetFuturepassAddressButtonClick}
-                    className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
-                >
-                    get holder futurepass address
-                </button>
-            </div>
-            <div className="pt-2">
-                futurepass address:{" "}
-                {fpAddress ? fpAddress : "press button to retrieve"}
-            </div>
-            <div>
-                <button
-                    onClick={handleSendExtrinsicButtonClick}
-                    className=" bg-[#FFFFFF] mt-8 p-2 rounded-lg text-[#151515]"
-                >
-                    remark with event extrinsic
-                </button>
-            </div>
+                    <div>
+                        {walletAddress.length === 0 ? (
+                            <button
+                                onClick={handleConnectWalletButton}
+                                className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
+                            >
+                                connect wallet
+                            </button>
+                        ) : (
+                            <button className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]">
+                                connected!
+                            </button>
+                        )}
+                        <div className="pt-2">
+                            connected address:{" "}
+                            {walletAddress ? walletAddress : "not connected"}
+                        </div>
+                        <div>
+                            account xrp balance:{" "}
+                            {balance ? balance : "not connected"}
+                        </div>
+                    </div>
+                    <div>
+                        <button
+                            onClick={handleGetFuturepassAddressButtonClick}
+                            className=" bg-[#FFFFFF] mt-4 p-2 rounded-lg text-[#151515]"
+                        >
+                            get holder futurepass address
+                        </button>
+                    </div>
+                    <div className="pt-2">
+                        futurepass address:{" "}
+                        {fpAddress ? fpAddress : "press button to retrieve"}
+                    </div>
+                    <div>
+                        <button
+                            onClick={handleSendExtrinsicButtonClick}
+                            className=" bg-[#FFFFFF] mt-8 p-2 rounded-lg text-[#151515]"
+                        >
+                            remark with event extrinsic
+                        </button>
+                    </div>
 
-            {errorMessage && (
-                <div className="text-red-500 mt-2">{errorMessage}</div>
+                    {errorMessage && (
+                        <div className="text-red-500 mt-2">{errorMessage}</div>
+                    )}
+                </div>
             )}
         </main>
     )
